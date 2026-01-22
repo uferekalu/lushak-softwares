@@ -11,7 +11,7 @@ import "swiper/css/parallax";
 
 const slides = [
   {
-    image: "/images/innovativeweb.jpg",
+    image: "/images/innovativeweb2.jpg",
     title: "Innovative Web & App Solutions for Your Business",
     desc: "At LUSHAK DATA SYSTEMS, we craft custom websites and cross-platform apps that drive growth. From scalable e-commerce platforms to secure banking systems.",
   },

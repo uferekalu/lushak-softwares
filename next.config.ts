@@ -14,36 +14,6 @@ const nextConfig = {
         port: '',
         pathname: '/**', 
       },
-      {
-        protocol: 'https',
-        hostname: 'ripenapps.com',
-        port: '',
-        pathname: '/**', 
-      },
-      {
-        protocol: 'https',
-        hostname: 'fenixcommerce.com',
-        port: '',
-        pathname: '/**', 
-      },
-      {
-        protocol: 'https',
-        hostname: 'themindstudios.com',
-        port: '',
-        pathname: '/**', 
-      },
-      {
-        protocol: 'https',
-        hostname: 'www.addevice.io',
-        port: '',
-        pathname: '/**', 
-      },
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**', 
-      },
     ],
   },
 };
