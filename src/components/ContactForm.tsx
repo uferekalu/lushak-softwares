@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 
 const MAX_TOTAL_SIZE_BYTES = 20 * 1024 * 1024;
 const MAX_FILES = 8;
+
 const ACCEPTED_FILE_TYPES = [
     "image/jpeg",
     "image/png",
@@ -68,17 +69,22 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+type FilePreview = {
+    file: File;
+    url: string | null;
+    name: string;
+    isImage: boolean;
+};
+
 export default function ContactForm() {
+    const [filesList, setFilesList] = useState<FilePreview[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [previewUrls, setPreviewUrls] = useState<string[]>([]);
-    const [fileNames, setFileNames] = useState<string[]>([]);
 
     const {
         register,
         handleSubmit,
         formState: { errors, isValid },
         reset,
-        watch,
         setValue,
     } = useForm<FormData>({
         resolver: zodResolver(schema),
@@ -86,24 +92,76 @@ export default function ContactForm() {
         reValidateMode: "onChange",
     });
 
-    const filesWatch = watch("files");
+    // ────────────────────────────────────────────────
+    //                  File handling
+    // ────────────────────────────────────────────────
 
+    const handleFilesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files) return;
+
+        const selectedFiles = Array.from(e.target.files);
+
+        const newPreviews: FilePreview[] = selectedFiles.map((file) => ({
+            file,
+            name: file.name,
+            isImage: file.type.startsWith("image/"),
+            url: file.type.startsWith("image/") ? URL.createObjectURL(file) : null,
+        }));
+
+        setFilesList((prev) => {
+            const combined = [...prev, ...newPreviews];
+
+            if (combined.length > MAX_FILES) {
+                toast.error(`Maximum ${MAX_FILES} files allowed`);
+                return combined.slice(0, MAX_FILES);
+            }
+
+            return combined;
+        });
+
+        // Update react-hook-form value
+        const dt = new DataTransfer();
+        [...filesList, ...newPreviews].forEach((item) => dt.items.add(item.file));
+        setValue("files", dt.files, { shouldValidate: true });
+
+        // Reset input so user can select the same file again after removal
+        e.target.value = "";
+    }, [filesList, setValue]);
+
+    const removeFile = useCallback((index: number) => {
+        setFilesList((prev) => {
+            const itemToRemove = prev[index];
+
+            // Clean up object URL if it exists
+            if (itemToRemove?.url) {
+                URL.revokeObjectURL(itemToRemove.url);
+            }
+
+            const updated = prev.filter((_, i) => i !== index);
+
+            // Update form value
+            const dt = new DataTransfer();
+            updated.forEach((item) => dt.items.add(item.file));
+            setValue("files", dt.files, { shouldValidate: true });
+
+            return updated;
+        });
+    }, [setValue]);
+
+    // Cleanup remaining object URLs on unmount
     useEffect(() => {
-        if (!filesWatch || filesWatch.length === 0) {
-            setPreviewUrls([]);
-            setFileNames([]);
-            return;
-        }
-
-        const files = Array.from(filesWatch as FileList);
-        const newUrls = files.map((file) => URL.createObjectURL(file));
-        setPreviewUrls(newUrls);
-        setFileNames(files.map((f) => f.name));
-
         return () => {
-            newUrls.forEach((url) => URL.revokeObjectURL(url));
+            filesList.forEach((item) => {
+                if (item.url) {
+                    URL.revokeObjectURL(item.url);
+                }
+            });
         };
-    }, [filesWatch]);
+    }, [filesList]);
+
+    // ────────────────────────────────────────────────
+    //                  reCAPTCHA
+    // ────────────────────────────────────────────────
 
     useEffect(() => {
         const script = document.createElement("script");
@@ -120,7 +178,7 @@ export default function ContactForm() {
 
     const getRecaptchaToken = async (): Promise<string | null> => {
         if (!window.grecaptcha) {
-            toast.error("reCAPTCHA failed to load. Please refresh.");
+            toast.error("reCAPTCHA failed to load. Please refresh the page.");
             return null;
         }
 
@@ -136,6 +194,10 @@ export default function ContactForm() {
             });
         });
     };
+
+    // ────────────────────────────────────────────────
+    //                     Submit
+    // ────────────────────────────────────────────────
 
     const onSubmit = async (data: FormData) => {
         setIsSubmitting(true);
@@ -170,14 +232,17 @@ export default function ContactForm() {
 
             if (response.ok) {
                 const fileListText =
-                    fileNames.length > 0 ? ` (${fileNames.join(", ")})` : "";
+                    filesList.length > 0 ? ` (${filesList.map((f) => f.name).join(", ")})` : "";
+
                 toast.success(`Message sent successfully!${fileListText}`, {
                     duration: 8000,
                     position: "top-right",
                 });
+
+                // Cleanup
+                filesList.forEach((f) => f.url && URL.revokeObjectURL(f.url));
+                setFilesList([]);
                 reset();
-                setPreviewUrls([]);
-                setFileNames([]);
             } else {
                 toast.error(result.error || "Failed to send message.", {
                     duration: 6000,
@@ -194,16 +259,9 @@ export default function ContactForm() {
         }
     };
 
-    const removeFile = (index: number) => {
-        if (!filesWatch) return;
-
-        const dt = new DataTransfer();
-        Array.from(filesWatch as FileList).forEach((file, i) => {
-            if (i !== index) dt.items.add(file);
-        });
-
-        setValue("files", dt.files, { shouldValidate: true });
-    };
+    // ────────────────────────────────────────────────
+    //                     RENDER
+    // ────────────────────────────────────────────────
 
     return (
         <section className="py-16 md:py-20 bg-gradient-to-b from-gray-50 to-gray-200">
@@ -240,7 +298,9 @@ export default function ContactForm() {
                             id="name"
                             type="text"
                             {...register("name")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.name ? "border-red-500 focus:ring-red-200" : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.name
+                                    ? "border-red-500 focus:ring-red-200"
+                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="John Doe"
                         />
@@ -252,7 +312,7 @@ export default function ContactForm() {
                                     exit={{ opacity: 0, height: 0 }}
                                     className="text-red-600 text-sm mt-1.5"
                                 >
-                                    {errors.name?.message}
+                                    {errors.name.message}
                                 </motion.p>
                             )}
                         </AnimatePresence>
@@ -267,7 +327,9 @@ export default function ContactForm() {
                             id="email"
                             type="email"
                             {...register("email")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.email ? "border-red-500 focus:ring-red-200" : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.email
+                                    ? "border-red-500 focus:ring-red-200"
+                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="your.email@company.com"
                         />
@@ -285,6 +347,7 @@ export default function ContactForm() {
                         </AnimatePresence>
                     </div>
 
+                    {/* Phone */}
                     <div className="mb-7">
                         <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-2">
                             Phone Number
@@ -293,7 +356,9 @@ export default function ContactForm() {
                             id="phone"
                             type="tel"
                             {...register("phone")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.phone ? "border-red-500 focus:ring-red-200" : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.phone
+                                    ? "border-red-500 focus:ring-red-200"
+                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="+234 123 456 7890"
                         />
@@ -311,6 +376,7 @@ export default function ContactForm() {
                         </AnimatePresence>
                     </div>
 
+                    {/* Subject */}
                     <div className="mb-7">
                         <label htmlFor="subject" className="block text-sm font-medium text-slate-700 mb-2">
                             Subject <span className="text-red-500">*</span>
@@ -319,7 +385,9 @@ export default function ContactForm() {
                             id="subject"
                             type="text"
                             {...register("subject")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.subject ? "border-red-500 focus:ring-red-200" : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.subject
+                                    ? "border-red-500 focus:ring-red-200"
+                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="Inquiry about website development"
                         />
@@ -337,6 +405,7 @@ export default function ContactForm() {
                         </AnimatePresence>
                     </div>
 
+                    {/* Message */}
                     <div className="mb-8">
                         <label htmlFor="message" className="block text-sm font-medium text-slate-700 mb-2">
                             Your Message <span className="text-red-500">*</span>
@@ -345,7 +414,9 @@ export default function ContactForm() {
                             id="message"
                             {...register("message")}
                             rows={6}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 resize-y min-h-[140px] ${errors.message ? "border-red-500 focus:ring-red-200" : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 resize-y min-h-[140px] ${errors.message
+                                    ? "border-red-500 focus:ring-red-200"
+                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="Tell us about your project, requirements, timeline, or any questions..."
                         />
@@ -363,10 +434,12 @@ export default function ContactForm() {
                         </AnimatePresence>
                     </div>
 
+                    {/* Files */}
                     <div className="mb-8">
                         <label htmlFor="files" className="block text-sm font-medium text-slate-700 mb-2">
                             Attach Files (optional, max {MAX_FILES} files, total ≤ 20MB)
                         </label>
+
                         <div className="flex items-center justify-center w-full">
                             <label
                                 htmlFor="files"
@@ -383,7 +456,7 @@ export default function ContactForm() {
                                     type="file"
                                     multiple
                                     accept={ACCEPTED_FILE_TYPES.join(",")}
-                                    {...register("files")}
+                                    onChange={handleFilesChange}
                                     className="hidden"
                                 />
                             </label>
@@ -402,34 +475,54 @@ export default function ContactForm() {
                             )}
                         </AnimatePresence>
 
-                        {/* Previews */}
-                        {previewUrls.length > 0 && (
-                            <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                                {previewUrls.map((url, idx) => (
-                                    <div key={idx} className="relative group rounded-lg overflow-hidden shadow-sm">
-                                        <img
-                                            src={url}
-                                            alt={`preview ${fileNames[idx] || idx}`}
-                                            className="w-full h-28 object-cover"
-                                        />
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                            <button
-                                                type="button"
-                                                onClick={() => removeFile(idx)}
-                                                className="bg-red-600 text-white rounded-full p-2 hover:bg-red-700 transition-colors"
-                                            >
-                                                <X size={20} />
-                                            </button>
-                                        </div>
-                                        <p className="text-xs text-center mt-1 text-slate-600 truncate px-1">
-                                            {fileNames[idx]}
-                                        </p>
-                                    </div>
-                                ))}
+                        {/* File Previews */}
+                        {filesList.length > 0 && (
+                            <div className="mt-6 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                                <AnimatePresence>
+                                    {filesList.map((item, index) => (
+                                        <motion.div
+                                            key={`${item.name}-${index}`}
+                                            initial={{ opacity: 0, scale: 0.92 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            exit={{ opacity: 0, scale: 0.88 }}
+                                            className="relative group rounded-lg overflow-hidden shadow-sm bg-white border border-slate-200"
+                                        >
+                                            {item.isImage && item.url ? (
+                                                <img
+                                                    src={item.url}
+                                                    alt={item.name}
+                                                    className="w-full h-28 object-cover"
+                                                />
+                                            ) : (
+                                                <div className="w-full h-28 bg-slate-100 flex flex-col items-center justify-center p-2">
+                                                    <span className="text-2xl font-bold text-slate-400">
+                                                        {item.name.split(".").pop()?.toUpperCase() || "FILE"}
+                                                    </span>
+                                                    <span className="text-[10px] text-slate-500 mt-1">non-previewable</span>
+                                                </div>
+                                            )}
+
+                                            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => removeFile(index)}
+                                                    className="bg-red-600 hover:bg-red-700 text-white rounded-full p-2.5 shadow-md transition-colors"
+                                                >
+                                                    <X size={20} />
+                                                </button>
+                                            </div>
+
+                                            <p className="text-xs text-center mt-1.5 px-1.5 text-slate-700 truncate">
+                                                {item.name}
+                                            </p>
+                                        </motion.div>
+                                    ))}
+                                </AnimatePresence>
                             </div>
                         )}
                     </div>
 
+                    {/* Submit Button */}
                     <motion.button
                         type="submit"
                         disabled={isSubmitting || !isValid}
@@ -443,7 +536,15 @@ export default function ContactForm() {
                         {isSubmitting ? (
                             <>
                                 <svg className="animate-spin h-5 w-5 text-white" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                                    <circle
+                                        className="opacity-25"
+                                        cx="12"
+                                        cy="12"
+                                        r="10"
+                                        stroke="currentColor"
+                                        strokeWidth="4"
+                                        fill="none"
+                                    />
                                     <path
                                         className="opacity-75"
                                         fill="currentColor"
