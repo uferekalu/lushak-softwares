@@ -28,81 +28,19 @@ const item = {
 const projects = [
   {
     id: 1,
-    title: "NovaPay – Digital Banking Platform",
-    category: "FinTech / Mobile + Web",
+    title: "QuickSearchPlus",
+    category: "Productivity / Collaboration Software (SaaS)",
     description:
-      "Secure mobile-first banking app with real-time transactions, card management, savings goals, bill payments, and admin dashboard. Built with React Native + Next.js + NestJS + PostgreSQL.",
-    image: "/images/portfolio/novapay-hero.jpg",
-    tags: ["React Native", "Next.js", "NestJS", "PostgreSQL", "WebSocket", "Stripe"],
+      `QuickSearchPlus is an AI-powered productivity and knowledge management platform 
+      that automates meeting planning, live discussions, and follow-ups while 
+      capturing key insights in real time. It also modernizes bookmarking by 
+      making it easy to save, organize, and search information from across the 
+      web—bringing meeting notes and web resources together in one centralized, searchable workspace.`,
+    image: "/images/quicksearch.png",
+    tags: ["React Native", "Next.js", "NestJS", "MySQL", "WebSocket", "Stripe"],
     year: "2025",
-    role: "Lead Full-Stack Developer",
-    link: "https://novapay.ng",
+    link: "https://quicksearchplus.com",
     color: "from-cyan-500 to-blue-600",
-  },
-  {
-    id: 2,
-    title: "ShopSphere – Multi-Vendor Marketplace",
-    category: "E-Commerce",
-    description:
-      "Headless e-commerce platform supporting 50+ vendors, advanced search & filtering, real-time order tracking, seller dashboard, integrated payment & logistics APIs.",
-    image: "/images/portfolio/shopsphere.jpg",
-    tags: ["Next.js", "GraphQL", "Medusa.js", "Tailwind", "Redis", "Stripe Connect"],
-    year: "2025",
-    role: "Full-Stack & Architecture",
-    link: "#",
-    color: "from-rose-500 to-pink-600",
-  },
-  {
-    id: 3,
-    title: "LogiTrack – Logistics Management System",
-    category: "Logistics / Enterprise",
-    description:
-      "End-to-end logistics platform with real-time GPS tracking, route optimization, warehouse management, driver mobile app, automated billing & analytics dashboard.",
-    image: "/images/portfolio/logitrack.jpg",
-    tags: ["Flutter", "Node.js", "MongoDB", "Socket.io", "Google Maps API", "Kafka"],
-    year: "2024",
-    role: "Technical Lead",
-    link: "#",
-    color: "from-emerald-500 to-teal-600",
-  },
-  {
-    id: 4,
-    title: "EstateHub – Real Estate Marketplace",
-    category: "PropTech",
-    description:
-      "Modern property listing platform with virtual tours, AI-powered valuation, mortgage calculator, agent CRM, tenant screening & smart contract integration.",
-    image: "/images/portfolio/estatehub.jpg",
-    tags: ["Next.js", "TypeScript", "Prisma", "Three.js", "Stripe", "Sanity CMS"],
-    year: "2025",
-    role: "Full-Stack Developer",
-    link: "#",
-    color: "from-amber-500 to-orange-600",
-  },
-  {
-    id: 5,
-    title: "EduFlow – Learning Management System",
-    category: "EdTech / SaaS",
-    description:
-      "Multi-tenant LMS with course builder, live classes, quizzes, certificates, progress tracking, gamification, payment integration and admin analytics.",
-    image: "/images/portfolio/eduflow.jpg",
-    tags: ["React", "Node.js", "PostgreSQL", "WebRTC", "MUI", "Razorpay"],
-    year: "2024",
-    role: "Full-Stack & UI/UX",
-    link: "#",
-    color: "from-violet-500 to-purple-600",
-  },
-  {
-    id: 6,
-    title: "FleetMaster – Fleet Management SaaS",
-    category: "Logistics / Enterprise",
-    description:
-      "Comprehensive fleet management solution – vehicle tracking, maintenance scheduling, fuel monitoring, driver behavior analytics, compliance reporting.",
-    image: "/images/portfolio/fleetmaster.jpg",
-    tags: ["React Native", "NestJS", "TimescaleDB", "Mapbox", "Grafana", "MQTT"],
-    year: "2025",
-    role: "Lead Developer",
-    link: "#",
-    color: "from-lime-500 to-green-600",
   },
 ];
 
@@ -205,10 +143,6 @@ export default function Portfolio() {
 
                   {/* Footer */}
                   <div className="flex items-center justify-between mt-auto pt-6 border-t border-slate-200">
-                    <div className="text-sm text-slate-500 font-medium">
-                      {project.role}
-                    </div>
-
                     {project.link !== "#" ? (
                       <Link
                         href={project.link}

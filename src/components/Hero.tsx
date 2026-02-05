@@ -11,7 +11,7 @@ import "swiper/css/parallax";
 
 const slides = [
   {
-    image: "/images/innovativeweb2.jpg",
+    image: "/images/innovativeweb2.png",
     title: "Innovative Web & App Solutions for Your Business",
     desc: "At LUSHAK DATA SYSTEMS, we craft custom websites and cross-platform apps that drive growth. From scalable e-commerce platforms to secure banking systems.",
   },
@@ -21,7 +21,7 @@ const slides = [
     desc: "Build powerful online stores with seamless user experiences, integrated payments, and inventory management for retail success.",
   },
   {
-    image: "/images/fintech.jpeg",
+    image: "/images/fintech.png",
     title: "Fintech & Banking Applications",
     desc: "Secure, compliant apps for financial services – mobile banking, transactions, and data analytics tailored to your needs.",
   },
@@ -36,7 +36,7 @@ const slides = [
     desc: "Interactive property listings, virtual tours, and management systems to elevate your real estate business.",
   },
   {
-    image: "/images/crossplatform.jpg",
+    image: "/images/crossplatform.png",
     title: "Cross-Platform Mobile App Development",
     desc: "Build apps for iOS and Android with React Native or Flutter – fast, responsive, and cost-effective.",
   },
