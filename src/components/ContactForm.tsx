@@ -92,10 +92,6 @@ export default function ContactForm() {
         reValidateMode: "onChange",
     });
 
-    // ────────────────────────────────────────────────
-    //                  File handling
-    // ────────────────────────────────────────────────
-
     const handleFilesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         if (!e.target.files) return;
 
@@ -118,13 +114,10 @@ export default function ContactForm() {
 
             return combined;
         });
-
-        // Update react-hook-form value
         const dt = new DataTransfer();
         [...filesList, ...newPreviews].forEach((item) => dt.items.add(item.file));
         setValue("files", dt.files, { shouldValidate: true });
 
-        // Reset input so user can select the same file again after removal
         e.target.value = "";
     }, [filesList, setValue]);
 
@@ -299,8 +292,8 @@ export default function ContactForm() {
                             type="text"
                             {...register("name")}
                             className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.name
-                                    ? "border-red-500 focus:ring-red-200"
-                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="John Doe"
                         />
@@ -328,8 +321,8 @@ export default function ContactForm() {
                             type="email"
                             {...register("email")}
                             className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.email
-                                    ? "border-red-500 focus:ring-red-200"
-                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="your.email@company.com"
                         />
@@ -357,8 +350,8 @@ export default function ContactForm() {
                             type="tel"
                             {...register("phone")}
                             className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.phone
-                                    ? "border-red-500 focus:ring-red-200"
-                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="+234 123 456 7890"
                         />
@@ -386,8 +379,8 @@ export default function ContactForm() {
                             type="text"
                             {...register("subject")}
                             className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.subject
-                                    ? "border-red-500 focus:ring-red-200"
-                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="Inquiry about website development"
                         />
@@ -415,8 +408,8 @@ export default function ContactForm() {
                             {...register("message")}
                             rows={6}
                             className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 resize-y min-h-[140px] ${errors.message
-                                    ? "border-red-500 focus:ring-red-200"
-                                    : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
+                                ? "border-red-500 focus:ring-red-200"
+                                : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
                             placeholder="Tell us about your project, requirements, timeline, or any questions..."
                         />
@@ -470,10 +463,11 @@ export default function ContactForm() {
                                     exit={{ opacity: 0, height: 0 }}
                                     className="text-red-600 text-sm mt-2 text-center"
                                 >
-                                    {errors.files.message}
+                                    {String(errors.files.message)}
                                 </motion.p>
                             )}
                         </AnimatePresence>
+
 
                         {/* File Previews */}
                         {filesList.length > 0 && (
@@ -529,8 +523,8 @@ export default function ContactForm() {
                         whileHover={{ scale: isValid && !isSubmitting ? 1.02 : 1 }}
                         whileTap={{ scale: 0.98 }}
                         className={`w-full py-4 px-6 rounded-xl font-semibold text-lg flex items-center justify-center gap-3 transition-all duration-300 shadow-lg ${isValid && !isSubmitting
-                                ? "bg-blue-600 hover:bg-blue-700 text-white"
-                                : "bg-slate-400 text-slate-200 cursor-not-allowed"
+                            ? "bg-blue-600 hover:bg-blue-700 text-white"
+                            : "bg-slate-400 text-slate-200 cursor-not-allowed"
                             }`}
                     >
                         {isSubmitting ? (
