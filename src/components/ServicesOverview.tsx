@@ -64,7 +64,7 @@ export default function ServicesOverview() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-4xl font-bold text-center mb-12"
+          className="text-4xl text-black font-bold text-center mb-12"
         >
           Our Comprehensive Services
         </motion.h2>
@@ -89,7 +89,7 @@ export default function ServicesOverview() {
               <div className="p-6">
                 <div className="flex items-center mb-4">
                   {service.icon}
-                  <h3 className="text-2xl font-semibold ml-4">{service.title}</h3>
+                  <h3 className="text-2xl text-black font-semibold ml-4">{service.title}</h3>
                 </div>
                 <p className="text-gray-600">{service.desc}</p>
               </div>
