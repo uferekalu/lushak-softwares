@@ -291,7 +291,7 @@ export default function ContactForm() {
                             id="name"
                             type="text"
                             {...register("name")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.name
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 text-black ${errors.name
                                 ? "border-red-500 focus:ring-red-200"
                                 : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
@@ -320,7 +320,7 @@ export default function ContactForm() {
                             id="email"
                             type="email"
                             {...register("email")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.email
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 text-black ${errors.email
                                 ? "border-red-500 focus:ring-red-200"
                                 : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
@@ -349,7 +349,7 @@ export default function ContactForm() {
                             id="phone"
                             type="tel"
                             {...register("phone")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.phone
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 text-black ${errors.phone
                                 ? "border-red-500 focus:ring-red-200"
                                 : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
@@ -378,7 +378,7 @@ export default function ContactForm() {
                             id="subject"
                             type="text"
                             {...register("subject")}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 ${errors.subject
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 text-black ${errors.subject
                                 ? "border-red-500 focus:ring-red-200"
                                 : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
@@ -407,7 +407,7 @@ export default function ContactForm() {
                             id="message"
                             {...register("message")}
                             rows={6}
-                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 resize-y min-h-[140px] ${errors.message
+                            className={`w-full px-5 py-3.5 border rounded-xl focus:outline-none focus:ring-2 transition-all duration-200 bg-slate-50/50 text-black resize-y min-h-[140px] ${errors.message
                                 ? "border-red-500 focus:ring-red-200"
                                 : "border-slate-300 focus:ring-blue-500 focus:border-blue-500"
                                 }`}
